@@ -2,4 +2,7 @@
 settings.json
 __pycache__/
 *.txt
+build/
+dist/
+*.spec
 !requirements.txt

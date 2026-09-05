@@ -17,13 +17,24 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QComboBox, QPushButton, QLabel, QLineEdit, QTextEdit, QGroupBox, QScrollArea,
     QMessageBox, QFileDialog, QFormLayout, QSplitter, QCheckBox, QSizePolicy,
+    QDialog,
 )
 
 import commands as C
 from parsers import parse_line
 from serial_worker import SerialWorker
 
-SETTINGS_FILE = "settings.json"
+def _app_dir():
+    """Folder tempat settings.json disimpan.
+    Saat dibundel PyInstaller (--onefile), __file__ menunjuk ke folder temp
+    yang hilang setelah exe ditutup — pakai lokasi exe-nya."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+SETTINGS_FILE = os.path.join(_app_dir(), "settings.json")
+
 DEFAULT_SETTINGS = {
     "port": "", "baud": "115200", "apn": "internet",
     "host": "", "port_mqtt": "1883", "client_id": "AT-TESTER",
@@ -39,15 +50,35 @@ CLR_INFO = QColor("#b0bec5")   # abu
 CLR_RX   = QColor("#eeeeee")
 
 
-class HelpDialog(QMessageBox):
+class HelpDialog(QDialog):
     def __init__(self, item, parent=None):
         super().__init__(parent)
         self.setWindowTitle(f"Help — {item['label']}")
-        self.setIcon(QMessageBox.Information)
-        self.setText(f"<b>{item['cmd']}</b>")
-        self.setInformativeText(item["help"])
-        self.setStandardButtons(QMessageBox.Ok)
-        self.setStyleSheet("QLabel{min-width:520px; font-family:Consolas,monospace;}")
+        self.setMinimumSize(640, 380)
+        self.resize(720, 440)
+
+        v = QVBoxLayout(self)
+
+        cmd = QLabel(f"<b>{item['cmd']}</b>")
+        cmd.setFont(QFont("Consolas", 11))
+        cmd.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        cmd.setWordWrap(True)
+        v.addWidget(cmd)
+
+        body = QTextEdit()
+        body.setReadOnly(True)
+        body.setFont(QFont("Consolas", 10))
+        body.setPlainText(item["help"])
+        body.setLineWrapMode(QTextEdit.WidgetWidth)
+        v.addWidget(body, 1)
+
+        btn = QPushButton("OK")
+        btn.setDefault(True)
+        btn.clicked.connect(self.accept)
+        h = QHBoxLayout()
+        h.addStretch()
+        h.addWidget(btn)
+        v.addLayout(h)
 
 
 class MainWindow(QMainWindow):
