@@ -1,5 +1,7 @@
 # Quectel EC25-E AT Command Tester
 
+🇮🇩 Bahasa Indonesia | [🇬🇧 English](README.en.md)
+
 GUI Windows untuk menguji modem **Quectel EC25-E** lewat USB (adaptor mini-PCIe) sebelum
 dipasang ke mikrokontroler. Preset command mengikuti urutan `lte_task` di firmware
 [STM32F401CCUx-EC25E-GPS-IoT](https://github.com/mjmokhtar/STM32F401CCUx-EC25E-GPS-IoT) —
